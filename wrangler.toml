@@ -1,30 +1,13 @@
-# Cloudflare Worker name (shown in dashboard)
+# Cloudflare Worker configuration
 name = "photograpth_template"
-
-# Entry point
 main = "src/worker.js"
-
-# Compatibility date (use latest)
 compatibility_date = "2024-11-01"
 
-# ── Static Assets (your HTML/CSS/JS files) ────────────────────
+# ── Static Assets (HTML/CSS/JS files) ────────────────────
 [assets]
 directory = "./public"
 binding   = "ASSETS"
 
-# ── KV Namespace (stores your content.json) ───────────────────
-# After running `wrangler kv namespace create CONTENT_KV`,
-# replace PLACEHOLDER with the real ID from the output.
-[[kv_namespaces]]
-binding    = "CONTENT_KV"
-id         = "PLACEHOLDER_REPLACE_WITH_REAL_KV_ID"
-preview_id = "PLACEHOLDER_REPLACE_WITH_REAL_KV_ID"
-
-# ── R2 Bucket (stores uploaded images) ───────────────────────
-[[r2_buckets]]
-binding     = "IMAGES_BUCKET"
-bucket_name = "static-cms-images"
-
-# ── Environment Variables (non-secret) ───────────────────────
-# Secrets (ADMIN_USERNAME, ADMIN_PASSWORD, JWT_SECRET) are set
-# via `wrangler secret put` — never stored in this file.
+# ── KV Binding Note ──────────────────────────────────────
+# Attach CONTENT_KV in Cloudflare UI (Settings -> Functions -> KV namespace bindings)
+# or specify your real KV ID here if deploying via CLI.
