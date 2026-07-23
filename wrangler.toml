@@ -8,6 +8,7 @@ compatibility_date = "2024-11-01"
 directory = "./public"
 binding   = "ASSETS"
 
-# ── KV Binding Note ──────────────────────────────────────
-# Attach CONTENT_KV in Cloudflare UI (Settings -> Functions -> KV namespace bindings)
-# or specify your real KV ID here if deploying via CLI.
+# ── KV Namespace (stores site_content JSON & uploads) ────
+[[kv_namespaces]]
+binding = "CONTENT_KV"
+id      = "803a9ef860704f68ab36e70fa002a719"
