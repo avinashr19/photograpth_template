@@ -211,19 +211,22 @@ const DEFAULT_CONTENT = {
 // POST /api/auth/login
 app.post('/api/auth/login', async c => {
   const { username, password } = await c.req.json()
-  const expectedUser = c.env.ADMIN_USERNAME || 'admin'
-  const expectedPass = c.env.ADMIN_PASSWORD || 'RajKumar@2024'
+  const expectedUser = (c.env?.ADMIN_USERNAME || 'admin').trim()
+  const expectedPass = (c.env?.ADMIN_PASSWORD || 'RajKumar@2024').trim()
 
-  const validUser = username === expectedUser
-  const validPass = password === expectedPass
+  const userInput = (username || '').trim()
+  const passInput = (password || '').trim()
+
+  const validUser = userInput.toLowerCase() === expectedUser.toLowerCase()
+  const validPass = passInput === expectedPass
 
   if (!validUser || !validPass) {
     await new Promise(r => setTimeout(r, 1000))
     return c.json({ error: 'Invalid credentials' }, 401)
   }
 
-  const jwtSecret = c.env.JWT_SECRET || 'fallback-jwt-secret-key-12345'
-  const token = await signJWT({ username, role: 'admin' }, jwtSecret)
+  const jwtSecret = c.env?.JWT_SECRET || 'fallback-jwt-secret-key-12345'
+  const token = await signJWT({ username: userInput, role: 'admin' }, jwtSecret)
   return c.json({ token, expiresIn: '8h' })
 })
 
@@ -244,15 +247,22 @@ app.get('/admin/', c => c.redirect('/admin/login.html'))
 
 // GET /api/content  — public (website & admin both read here)
 app.get('/api/content', async c => {
-  const data = await c.env.CONTENT_KV.get('site_content', { type: 'json' })
-  return c.json(data ?? DEFAULT_CONTENT)
+  if (!c.env?.CONTENT_KV) return c.json(DEFAULT_CONTENT)
+  try {
+    const data = await c.env.CONTENT_KV.get('site_content', { type: 'json' })
+    return c.json(data ?? DEFAULT_CONTENT)
+  } catch {
+    return c.json(DEFAULT_CONTENT)
+  }
 })
 
 // PUT /api/content  — protected
 app.put('/api/content', requireAuth, async c => {
   const body = await c.req.json()
   if (!body || typeof body !== 'object') return c.json({ error: 'Invalid payload' }, 400)
-  await c.env.CONTENT_KV.put('site_content', JSON.stringify(body))
+  if (c.env?.CONTENT_KV) {
+    await c.env.CONTENT_KV.put('site_content', JSON.stringify(body))
+  }
   return c.json({ success: true, message: 'Content updated successfully!' })
 })
 
@@ -273,11 +283,11 @@ app.post('/api/upload', requireAuth, async c => {
   const ext      = file.name.split('.').pop().toLowerCase()
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
-  if (c.env.IMAGES_BUCKET) {
+  if (c.env?.IMAGES_BUCKET) {
     await c.env.IMAGES_BUCKET.put(filename, file.stream(), {
       httpMetadata: { contentType: file.type }
     })
-  } else {
+  } else if (c.env?.CONTENT_KV) {
     // Store in KV (100% FREE - No credit card required!)
     const arrayBuffer = await file.arrayBuffer()
     await c.env.CONTENT_KV.put(`img:${filename}`, arrayBuffer, {
@@ -290,11 +300,13 @@ app.post('/api/upload', requireAuth, async c => {
 
 // GET /api/uploads  — protected (admin media library)
 app.get('/api/uploads', requireAuth, async c => {
-  if (c.env.IMAGES_BUCKET) {
+  if (c.env?.IMAGES_BUCKET) {
     const list  = await c.env.IMAGES_BUCKET.list()
     const files = list.objects.map(o => ({ filename: o.key, url: `/uploads/${o.key}` }))
     return c.json(files)
   }
+
+  if (!c.env?.CONTENT_KV) return c.json([])
 
   // KV fallback list
   const list = await c.env.CONTENT_KV.list({ prefix: 'img:' })
@@ -308,9 +320,9 @@ app.get('/api/uploads', requireAuth, async c => {
 // DELETE /api/uploads/:filename  — protected
 app.delete('/api/uploads/:filename', requireAuth, async c => {
   const filename = c.req.param('filename')
-  if (c.env.IMAGES_BUCKET) {
+  if (c.env?.IMAGES_BUCKET) {
     await c.env.IMAGES_BUCKET.delete(filename)
-  } else {
+  } else if (c.env?.CONTENT_KV) {
     await c.env.CONTENT_KV.delete(`img:${filename}`)
   }
   return c.json({ success: true })
@@ -320,7 +332,7 @@ app.delete('/api/uploads/:filename', requireAuth, async c => {
 app.get('/uploads/:filename', async c => {
   const filename = c.req.param('filename')
 
-  if (c.env.IMAGES_BUCKET) {
+  if (c.env?.IMAGES_BUCKET) {
     const obj = await c.env.IMAGES_BUCKET.get(filename)
     if (obj) {
       const headers = new Headers()
@@ -330,6 +342,8 @@ app.get('/uploads/:filename', async c => {
       return new Response(obj.body, { headers })
     }
   }
+
+  if (!c.env?.CONTENT_KV) return c.notFound()
 
   // Fallback to KV storage
   const kvObj = await c.env.CONTENT_KV.getWithMetadata(`img:${filename}`, { type: 'arrayBuffer' })
