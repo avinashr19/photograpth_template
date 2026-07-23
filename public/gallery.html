@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery | Lumina Studio</title>
+  <meta name="description" content="Browse our photography portfolio — weddings, pre-wedding, birthday, portrait, family and more." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C97A;
+      --dark: #0a0a0a; --dark-2: #111; --dark-3: #1a1a1a;
+      --text: #f0ede8; --text-muted: #888880;
+      --border: rgba(201,168,76,0.15);
+      --glass: rgba(201,168,76,0.08);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: var(--dark); color: var(--text); overflow-x: hidden; }
+
+    /* ── NAV ──────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      background: rgba(10,10,10,0.92); backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 5%;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+    .nav-logo-img { height: 44px; width: auto; object-fit: contain; }
+    .logo-signboard {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(0,0,0,0.6); padding: 0.35rem 0.75rem;
+      border: 1px solid rgba(255,107,53,0.3); border-radius: 6px;
+    }
+    .camera-sign-svg { width: 34px; height: 26px; flex-shrink: 0; }
+    .sign-text-col { display: flex; flex-direction: column; line-height: 1; }
+    .sign-title-main { font-size: 1.15rem; font-weight: 900; color: #FFFFFF; letter-spacing: 0.08em; font-family: 'Outfit', sans-serif; }
+    .sign-title-sub { font-size: 0.62rem; font-weight: 800; color: #FF6B35; letter-spacing: 0.12em; margin-top: 2px; text-transform: uppercase; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none; font-size: 0.85rem;
+      font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-cta {
+      border: 1px solid var(--gold); color: var(--gold);
+      padding: 0.5rem 1.3rem; border-radius: 2px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; transition: all 0.3s;
+    }
+    .nav-cta:hover { background: var(--gold); color: var(--dark); }
+
+    /* ── PAGE HERO ─────────────────────────────────────────── */
+    .page-hero {
+      padding: 9rem 5% 4rem;
+      background: linear-gradient(to bottom, #0a0a0a 0%, #111 100%);
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 80% 50%, rgba(201,168,76,0.06), transparent 70%);
+    }
+    .page-hero-eyebrow {
+      display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;
+    }
+    .ph-line { width: 30px; height: 1px; background: var(--gold); }
+    .ph-tag { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+    .page-hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 700; line-height: 1.1;
+      margin-bottom: 0.8rem;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--gold-light); }
+    .page-hero p { color: var(--text-muted); font-size: 1rem; max-width: 480px; line-height: 1.7; }
+
+    /* ── FILTER BAR ─────────────────────────────────────────── */
+    .filter-section {
+      padding: 2.5rem 5% 0;
+      position: sticky; top: 70px; z-index: 50;
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-bar {
+      display: flex; gap: 0.6rem; align-items: center;
+      overflow-x: auto; padding-bottom: 1.5rem;
+      scrollbar-width: none;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1.2rem; border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
+      font-family: 'Outfit', sans-serif; font-size: 0.82rem;
+      font-weight: 500; letter-spacing: 0.05em;
+      cursor: pointer; white-space: nowrap;
+      transition: all 0.25s; flex-shrink: 0;
+    }
+    .filter-btn .count {
+      background: rgba(255,255,255,0.08); border-radius: 100px;
+      padding: 0.1rem 0.45rem; font-size: 0.7rem;
+    }
+    .filter-btn:hover { border-color: var(--gold); color: var(--text); }
+    .filter-btn.active {
+      background: var(--gold); border-color: var(--gold);
+      color: var(--dark); font-weight: 700;
+    }
+    .filter-btn.active .count { background: rgba(0,0,0,0.2); }
+
+    /* ── GALLERY GRID ───────────────────────────────────────── */
+    .gallery-section { padding: 3rem 5% 6rem; }
+    .results-info {
+      font-size: 0.82rem; color: var(--text-muted); margin-bottom: 2rem;
+    }
+    .results-info span { color: var(--gold); font-weight: 600; }
+
+    /* CSS columns masonry */
+    .gallery-masonry {
+      columns: 4 280px; gap: 10px;
+    }
+    .gallery-item {
+      break-inside: avoid; margin-bottom: 10px;
+      position: relative; overflow: hidden; border-radius: 4px;
+      cursor: pointer;
+      /* Scroll-driven reveal */
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .gallery-item.visible { opacity: 1; transform: translateY(0); }
+    .gallery-item.hidden {
+      display: none;
+    }
+    .gallery-item img {
+      width: 100%; display: block;
+      transition: transform 0.6s ease, filter 0.4s ease;
+      filter: brightness(0.95);
+    }
+    .gallery-item:hover img {
+      transform: scale(1.05);
+      filter: brightness(1);
+    }
+
+    /* Overlay on hover */
+    .gallery-item-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.85) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.35s ease;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 1.2rem;
+    }
+    .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+    .gallery-item-cat {
+      font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.2rem;
+    }
+    .gallery-item-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; }
+    .gallery-item-expand {
+      position: absolute; top: 0.8rem; right: 0.8rem;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(10,10,10,0.7); border: 1px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 0.9rem;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-item-expand { opacity: 1; }
+
+    /* Effect badges */
+    .effect-badge {
+      position: absolute; top: 0.8rem; left: 0.8rem;
+      background: var(--glass); backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 100px; padding: 0.2rem 0.6rem;
+      font-size: 0.65rem; color: var(--gold); letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── LIGHTBOX ────────────────────────────────────────────── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(5,5,5,0.96);
+      backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+
+    .lightbox-inner {
+      position: relative; max-width: 90vw; max-height: 90vh;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .lightbox-img-wrap {
+      position: relative; max-height: 85vh;
+      border-radius: 4px; overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    }
+    .lightbox-img-wrap img {
+      max-width: 80vw; max-height: 85vh;
+      width: auto; height: auto;
+      display: block;
+      transition: opacity 0.3s;
+    }
+    .lightbox-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.95), transparent);
+      padding: 2rem 1.5rem 1.2rem;
+    }
+    .lightbox-info-cat { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); }
+    .lightbox-info-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-top: 0.2rem; }
+
+    .lb-btn {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      color: white; font-size: 1.2rem; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; backdrop-filter: blur(8px);
+    }
+    .lb-btn:hover { background: var(--gold); border-color: var(--gold); color: var(--dark); }
+
+    .lightbox-close {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      color: white; font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; backdrop-filter: blur(8px);
+    }
+    .lightbox-close:hover { background: rgba(255,100,100,0.2); border-color: rgba(255,100,100,0.4); }
+
+    /* Lightbox counter */
+    .lightbox-counter {
+      position: absolute; bottom: 1.5rem; right: 1.5rem;
+      font-size: 0.78rem; color: var(--text-muted);
+      background: rgba(10,10,10,0.6); padding: 0.3rem 0.8rem; border-radius: 100px;
+    }
+
+    /* ── NO RESULTS ──────────────────────────────────────────── */
+    .no-results {
+      text-align: center; padding: 5rem 0; display: none;
+    }
+    .no-results .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .no-results p { color: var(--text-muted); }
+
+    /* ── FOOTER MINI ─────────────────────────────────────────── */
+    .mini-footer {
+      background: #050505; border-top: 1px solid var(--border);
+      padding: 2rem 5%; display: flex; justify-content: space-between;
+      align-items: center; color: var(--text-muted); font-size: 0.82rem;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .mini-footer a { color: var(--gold); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .gallery-masonry { columns: 2 160px; }
+      nav .nav-links { display: none; }
+    }
+    @media (max-width: 480px) {
+      .gallery-masonry { columns: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gallery-item { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-logo" id="nav-logo-container">
+      <div style="display:flex;align-items:center;gap:0.6rem;background:rgba(0,0,0,0.6);padding:0.35rem 0.75rem;border:1px solid rgba(255,107,53,0.3);border-radius:6px;">
+        <svg viewBox="0 0 40 30" fill="none" style="width:34px;height:26px;">
+          <path d="M5 8 C5 5.5, 7 4, 9.5 4 L13 4 L15 1.5 C15.5 0.8, 16.5 0.5, 17.5 0.5 L22.5 0.5 C23.5 0.5, 24.5 0.8, 25 1.5 L27 4 L30.5 4 C33 4, 35 5.5, 35 8 L35 22 C35 24.5, 33 26, 30.5 26 L9.5 26 C7 26, 5 24.5, 5 22 Z" stroke="#FF6B35" stroke-width="2.5"/>
+          <circle cx="20" cy="15" r="7.5" stroke="#FF6B35" stroke-width="2.5"/>
+          <circle cx="20" cy="15" r="4.5" fill="#0088FF"/>
+        </svg>
+        <div style="display:flex;flex-direction:column;line-height:1;">
+          <span style="font-size:1.1rem;font-weight:900;color:#FFF;letter-spacing:0.08em;">IMAGE</span>
+          <span style="font-size:0.6rem;font-weight:800;color:#FF6B35;letter-spacing:0.12em;margin-top:2px;">PHOTO STUDIO</span>
+        </div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/#story">About</a></li>
+      <li><a href="/#services">Services</a></li>
+      <li><a href="gallery.html" class="active">Gallery</a></li>
+      <li><a href="/#testimonials">Reviews</a></li>
+    </ul>
+    <a href="https://wa.me/918897111768?text=Hi!%20I%27d%20like%20to%20book%20a%20photography%20session%20at%20IMAGE%20PHOTO%20STUDIO." class="nav-cta" target="_blank" style="background:#25D366;color:#fff;border:none;border-radius:100px;">💬 WhatsApp Us</a>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="page-hero-eyebrow">
+      <div class="ph-line"></div>
+      <span class="ph-tag">Our Portfolio</span>
+    </div>
+    <h1>Moments We've <em>Captured</em></h1>
+    <p>Browse through our collection of weddings, portraits, celebrations, and more — each one a story beautifully told.</p>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-section">
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-filter="all">
+        All Work <span class="count" id="count-all">0</span>
+      </button>
+      <button class="filter-btn" data-filter="wedding">
+        💍 Wedding <span class="count" id="count-wedding">0</span>
+      </button>
+      <button class="filter-btn" data-filter="prewedding">
+        🌸 Pre-Wedding <span class="count" id="count-prewedding">0</span>
+      </button>
+      <button class="filter-btn" data-filter="birthday">
+        🎂 Birthday <span class="count" id="count-birthday">0</span>
+      </button>
+      <button class="filter-btn" data-filter="portrait">
+        🎭 Portrait <span class="count" id="count-portrait">0</span>
+      </button>
+      <button class="filter-btn" data-filter="family">
+        👨‍👩‍👧 Family <span class="count" id="count-family">0</span>
+      </button>
+      <button class="filter-btn" data-filter="corporate">
+        🏢 Corporate <span class="count" id="count-corporate">0</span>
+      </button>
+      <button class="filter-btn" data-filter="maternity">
+        🤰 Maternity <span class="count" id="count-maternity">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="gallery-section">
+    <div class="results-info" id="results-info">Showing <span id="results-count">0</span> photos</div>
+    <div class="gallery-masonry" id="gallery-grid"></div>
+    <div class="no-results" id="no-results">
+      <div class="icon">📷</div>
+      <p>No photos in this category yet.</p>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="lightbox-close" id="lb-close" aria-label="Close">✕</button>
+    <div class="lightbox-inner">
+      <button class="lb-btn" id="lb-prev" aria-label="Previous photo">‹</button>
+      <div class="lightbox-img-wrap">
+        <img id="lb-img" src="" alt="" />
+        <div class="lightbox-info">
+          <div class="lightbox-info-cat" id="lb-cat"></div>
+          <div class="lightbox-info-title" id="lb-title"></div>
+        </div>
+      </div>
+      <button class="lb-btn" id="lb-next" aria-label="Next photo">›</button>
+    </div>
+    <div class="lightbox-counter" id="lb-counter"></div>
+  </div>
+
+  <!-- MINI FOOTER -->
+  <footer class="mini-footer">
+    <span>© 2024 Lumina Studio</span>
+    <a href="/">← Back to Home</a>
+  </footer>
+
+  <script>
+    // ════════════════════════════════════════════════════════
+    // PHOTO DATA
+    // ════════════════════════════════════════════════════════
+    const PHOTOS = [
+      // WEDDING
+      { id:1, cat:'wedding', title:'The Golden Hour Kiss', effect:'Warm Tones', url:'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=85' },
+      { id:2, cat:'wedding', title:'Walking into Forever', effect:'Film Grain', url:'https://images.unsplash.com/photo-1583939411023-14783179e581?w=800&q=85' },
+      { id:3, cat:'wedding', title:'Bridal Glow', effect:'Soft Glow', url:'https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=800&q=85' },
+      { id:4, cat:'wedding', title:'The First Dance', effect:'Moody Dark', url:'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=85' },
+      { id:5, cat:'wedding', title:'Vows & Tears', effect:'B&W Classic', url:'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=800&q=85' },
+      { id:6, cat:'wedding', title:'Ceremony Bliss', effect:'Vintage', url:'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=85' },
+
+      // PRE-WEDDING
+      { id:7,  cat:'prewedding', title:'Sunset Silhouette', effect:'Golden Hour', url:'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800&q=85' },
+      { id:8,  cat:'prewedding', title:'Rain & Romance', effect:'Cinematic', url:'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=800&q=85' },
+      { id:9,  cat:'prewedding', title:'Meadow Waltz', effect:'Soft Focus', url:'https://images.unsplash.com/photo-1510932242168-0a9b04a6ece9?w=800&q=85' },
+      { id:10, cat:'prewedding', title:'Rooftop Stories', effect:'Urban Chic', url:'https://images.unsplash.com/photo-1455849318743-b2233052fcff?w=800&q=85' },
+      { id:11, cat:'prewedding', title:'Candid Laughter', effect:'Warm Film', url:'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800&q=85' },
+
+      // BIRTHDAY
+      { id:12, cat:'birthday', title:'First Candle', effect:'Vivid Pop', url:'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=85' },
+      { id:13, cat:'birthday', title:'Rainbow Birthday', effect:'Saturation+', url:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=85' },
+      { id:14, cat:'birthday', title:'Cake & Joy', effect:'Warm Pop', url:'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800&q=85' },
+      { id:15, cat:'birthday', title:'Sweet Sixteen', effect:'Pastel Dream', url:'https://images.unsplash.com/photo-1496843916299-590492c751f4?w=800&q=85' },
+      { id:16, cat:'birthday', title:'Balloon Bliss', effect:'Light Leak', url:'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=800&q=85' },
+
+      // PORTRAIT
+      { id:17, cat:'portrait', title:'Soul in the Eyes', effect:'Studio Light', url:'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=85' },
+      { id:18, cat:'portrait', title:'Golden Ratio', effect:'Rembrandt', url:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=85' },
+      { id:19, cat:'portrait', title:'Confident & Bold', effect:'High Contrast', url:'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=85' },
+      { id:20, cat:'portrait', title:'Natural Light', effect:'Window Light', url:'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&q=85' },
+      { id:21, cat:'portrait', title:'The Gaze', effect:'Moody Drama', url:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=85' },
+      { id:22, cat:'portrait', title:'Artistic Vision', effect:'Fine Art', url:'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=85' },
+
+      // FAMILY
+      { id:23, cat:'family', title:'Three Generations', effect:'Warm & Cozy', url:'https://images.unsplash.com/photo-1490718720478-364a07a997cd?w=800&q=85' },
+      { id:24, cat:'family', title:'Golden Afternoon', effect:'Sunflare', url:'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=85' },
+      { id:25, cat:'family', title:'Pure Candid Joy', effect:'Film Print', url:'https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?w=800&q=85' },
+      { id:26, cat:'family', title:'Park Afternoon', effect:'Natural', url:'https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?w=800&q=85' },
+
+      // CORPORATE
+      { id:27, cat:'corporate', title:'Executive Portrait', effect:'Clean & Pro', url:'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=85' },
+      { id:28, cat:'corporate', title:'Team Energy', effect:'Editorial', url:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=85' },
+      { id:29, cat:'corporate', title:'Product Launch', effect:'Event Style', url:'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=85' },
+
+      // MATERNITY
+      { id:30, cat:'maternity', title:'New Life', effect:'Soft & Dreamy', url:'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?w=800&q=85' },
+      { id:31, cat:'maternity', title:'Glow of Motherhood', effect:'Ethereal', url:'https://images.unsplash.com/photo-1516627145497-ae6968895b24?w=800&q=85' },
+      { id:32, cat:'maternity', title:'Garden Bloom', effect:'Natural Glow', url:'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=800&q=85' },
+    ];
+
+    // ════════════════════════════════════════════════════════
+    // UPDATE COUNTS
+    // ════════════════════════════════════════════════════════
+    const cats = ['all','wedding','prewedding','birthday','portrait','family','corporate','maternity'];
+    cats.forEach(cat => {
+      const cnt = cat === 'all' ? PHOTOS.length : PHOTOS.filter(p => p.cat === cat).length;
+      const el = document.getElementById('count-' + cat);
+      if (el) el.textContent = cnt;
+    });
+
+    // ════════════════════════════════════════════════════════
+    // RENDER GALLERY
+    // ════════════════════════════════════════════════════════
+    const grid       = document.getElementById('gallery-grid');
+    const noResults  = document.getElementById('no-results');
+    const resultsCnt = document.getElementById('results-count');
+
+    let currentFilter = 'all';
+    let filteredPhotos = [...PHOTOS];
+
+    function renderGallery (photos) {
+      grid.innerHTML = photos.map((p, i) => `
+        <div class="gallery-item"
+             data-id="${p.id}" data-cat="${p.cat}"
+             style="transition-delay:${(i % 8) * 0.05}s"
+             tabindex="0" role="button" aria-label="View ${p.title}">
+          <img
+            src="${p.url}"
+            alt="${p.title}"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="effect-badge">${p.effect}</div>
+          <div class="gallery-item-overlay">
+            <div class="gallery-item-cat">${p.cat.replace('prewedding','Pre-Wedding')}</div>
+            <div class="gallery-item-title">${p.title}</div>
+          </div>
+          <div class="gallery-item-expand">⤢</div>
+        </div>
+      `).join('');
+
+      resultsCnt.textContent = photos.length;
+      noResults.style.display = photos.length === 0 ? 'block' : 'none';
+      grid.style.display      = photos.length === 0 ? 'none'  : '';
+
+      // Scroll reveal via IntersectionObserver
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.08 });
+
+      grid.querySelectorAll('.gallery-item').forEach(el => {
+        obs.observe(el);
+        el.addEventListener('click', () => openLightbox(parseInt(el.dataset.id)));
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openLightbox(parseInt(el.dataset.id)); });
+      });
+    }
+
+    function applyFilter (cat) {
+      currentFilter = cat;
+      filteredPhotos = cat === 'all' ? [...PHOTOS] : PHOTOS.filter(p => p.cat === cat);
+      renderGallery(filteredPhotos);
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === cat);
+      });
+    }
+
+    // Filter button events
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
+    });
+
+    // ════════════════════════════════════════════════════════
+    // LIGHTBOX
+    // ════════════════════════════════════════════════════════
+    const lb       = document.getElementById('lightbox');
+    const lbImg    = document.getElementById('lb-img');
+    const lbCat    = document.getElementById('lb-cat');
+    const lbTitle  = document.getElementById('lb-title');
+    const lbCntr   = document.getElementById('lb-counter');
+    let lbIndex    = 0;
+
+    function openLightbox (id) {
+      lbIndex = filteredPhotos.findIndex(p => p.id === id);
+      if (lbIndex === -1) return;
+      showPhoto(lbIndex);
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      lb.focus();
+    }
+
+    function showPhoto (idx) {
+      const p  = filteredPhotos[idx];
+      lbImg.style.opacity = '0';
+      setTimeout(() => {
+        lbImg.src      = p.url;
+        lbImg.alt      = p.title;
+        lbCat.textContent   = p.cat.replace('prewedding','Pre-Wedding');
+        lbTitle.textContent = p.title;
+        lbCntr.textContent  = `${idx + 1} / ${filteredPhotos.length}`;
+        lbImg.style.opacity = '1';
+      }, 150);
+    }
+
+    function closeLightbox () {
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('lb-close').addEventListener('click', closeLightbox);
+    document.getElementById('lb-prev').addEventListener('click', () => {
+      lbIndex = (lbIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
+      showPhoto(lbIndex);
+    });
+    document.getElementById('lb-next').addEventListener('click', () => {
+      lbIndex = (lbIndex + 1) % filteredPhotos.length;
+      showPhoto(lbIndex);
+    });
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape')     closeLightbox();
+      if (e.key === 'ArrowLeft')  { lbIndex = (lbIndex - 1 + filteredPhotos.length) % filteredPhotos.length; showPhoto(lbIndex); }
+      if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % filteredPhotos.length; showPhoto(lbIndex); }
+    });
+
+    // Click outside to close
+    lb.addEventListener('click', e => { if (e.target === lb) closeLightbox(); });
+
+    // Touch swipe
+    let touchStartX = 0;
+    lb.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) { lbIndex = (lbIndex + 1) % filteredPhotos.length; }
+        else          { lbIndex = (lbIndex - 1 + filteredPhotos.length) % filteredPhotos.length; }
+        showPhoto(lbIndex);
+      }
+    });
+
+    // ════════════════════════════════════════════════════════
+    // DYNAMIC CONTENT FETCH
+    // ════════════════════════════════════════════════════════
+    async function initGallery() {
+      try {
+        const res = await fetch('/api/content');
+        if (res.ok) {
+          const c = await res.json();
+          // Update Logo if custom image is set in Admin
+          if (c.site?.logoImage) {
+            const logoContainer = document.getElementById('nav-logo-container');
+            if (logoContainer) {
+              logoContainer.innerHTML = `<img src="${c.site.logoImage}" alt="IMAGE PHOTO STUDIO" class="nav-logo-img" />`;
+            }
+          }
+          if (c.gallery && Array.isArray(c.gallery) && c.gallery.length > 0) {
+            PHOTOS.length = 0;
+            PHOTOS.push(...c.gallery);
+            // Update filter pill counts
+            cats.forEach(cat => {
+              const cnt = cat === 'all' ? PHOTOS.length : PHOTOS.filter(p => p.cat === cat).length;
+              const el = document.getElementById('count-' + cat);
+              if (el) el.textContent = cnt;
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Using default PHOTOS list:', e);
+      }
+      const urlFilter = new URLSearchParams(window.location.search).get('filter');
+      applyFilter(urlFilter && cats.includes(urlFilter) ? urlFilter : 'all');
+    }
+
+    initGallery();
+  </script>
+</body>
+</html>

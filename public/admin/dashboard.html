@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — IMAGE PHOTO STUDIO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #C9A84C; --gold-d: #a88936;
+      --success: #38A169; --danger: #E53E3E; --warning: #D69E2E;
+      --dark: #0D0D0D; --dark-2: #141414; --dark-3: #1A1A1A;
+      --border: rgba(201,168,76,0.2); --card: rgba(255,255,255,0.04);
+      --text: #F0F0F0; --muted: #888; --sidebar-w: 240px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--dark); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ─────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w); background: var(--dark-2);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 50;
+    }
+    .sidebar-logo { padding: 1.4rem 1.2rem; border-bottom: 1px solid var(--border); }
+    .sidebar-logo-text { font-size: 0.85rem; font-weight: 800; color: var(--text); letter-spacing: 0.08em; }
+    .sidebar-logo-text span { color: var(--gold); }
+    .sidebar-logo-sub { font-size: 0.68rem; color: var(--muted); margin-top: 0.2rem; }
+    .sidebar-nav { padding: 0.8rem 0.5rem; flex: 1; overflow-y: auto; }
+    .nav-section-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); padding: 0.8rem 0.7rem 0.4rem; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.6rem 0.8rem; border-radius: 6px;
+      cursor: pointer; color: var(--muted); font-size: 0.84rem; font-weight: 500;
+      transition: all 0.15s; border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: var(--card); color: var(--text); }
+    .nav-item.active { background: rgba(201,168,76,0.12); color: var(--gold); }
+    .nav-item .icon { font-size: 0.95rem; width: 18px; text-align: center; }
+    .sidebar-footer { padding: 1rem 1.2rem; border-top: 1px solid var(--border); }
+    .logout-btn {
+      width: 100%; padding: 0.6rem;
+      background: rgba(229,62,62,0.08); border: 1px solid rgba(229,62,62,0.2);
+      border-radius: 6px; color: var(--danger);
+      font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(229,62,62,0.15); }
+
+    /* ── MAIN ────────────────────────────────────────── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      background: var(--dark-2); border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 40;
+    }
+    .topbar-title { font-size: 0.95rem; font-weight: 700; }
+    .topbar-actions { display: flex; gap: 0.8rem; align-items: center; }
+    .btn-view {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--muted); padding: 0.45rem 1rem;
+      border-radius: 6px; font-family: 'Inter', sans-serif;
+      font-size: 0.8rem; cursor: pointer; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-view:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+    .btn-save {
+      background: var(--gold); border: none; color: var(--dark); padding: 0.45rem 1.2rem;
+      border-radius: 6px; font-family: 'Inter', sans-serif;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      transition: all 0.2s; box-shadow: 0 4px 16px rgba(201,168,76,0.3);
+    }
+    .btn-save:hover { background: var(--gold-d); }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── CONTENT AREA ────────────────────────────────── */
+    .content { padding: 2rem; flex: 1; }
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    /* ── CARDS ───────────────────────────────────────── */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.6rem; margin-bottom: 1.4rem; }
+    .card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 1.2rem; }
+
+    /* ── FORM ELEMENTS ───────────────────────────────── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .form-row.full { grid-template-columns: 1fr; }
+    .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    label { font-size: 0.74rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="url"], input[type="number"], textarea, select {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 0.88rem;
+      padding: 0.65rem 0.9rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(201,168,76,0.5);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+    select option { background: #1a1a1a; color: #fff; }
+
+    /* ── IMAGE UPLOAD ────────────────────────────────── */
+    .image-field { display: flex; gap: 1rem; align-items: flex-start; }
+    .image-preview { width: 100px; height: 68px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); flex-shrink: 0; background: var(--dark-3); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.3rem; }
+    .image-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .image-controls { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+    .upload-btn-label { background: var(--card); border: 1px dashed rgba(201,168,76,0.4); border-radius: 6px; padding: 0.5rem 1rem; font-size: 0.78rem; color: var(--gold); cursor: pointer; text-align: center; transition: all 0.2s; font-weight: 600; display: inline-block; }
+    .upload-btn-label:hover { background: rgba(201,168,76,0.12); }
+    input[type="file"] { display: none; }
+
+    /* ── GALLERY MANAGEMENT GRID ─────────────────────── */
+    .gallery-upload-box {
+      background: rgba(201,168,76,0.05); border: 1px dashed var(--border);
+      border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .gallery-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .gallery-admin-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+    .gallery-admin-thumb { height: 140px; overflow: hidden; position: relative; background: #000; }
+    .gallery-admin-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-admin-details { padding: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; flex: 1; }
+    .g-cat-tag { font-size: 0.65rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+    .g-title-text { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .g-effect-text { font-size: 0.72rem; color: var(--muted); }
+
+    /* ── BUTTONS ─────────────────────────────────────── */
+    .del-btn { background: rgba(229,62,62,0.1); border: 1px solid rgba(229,62,62,0.2); color: var(--danger); padding: 0.3rem 0.7rem; border-radius: 5px; font-size: 0.72rem; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .del-btn:hover { background: rgba(229,62,62,0.2); }
+    .add-btn { width: 100%; padding: 0.6rem; background: rgba(201,168,76,0.08); border: 1px dashed rgba(201,168,76,0.3); border-radius: 8px; color: var(--gold); font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .add-btn:hover { background: rgba(201,168,76,0.15); }
+
+    /* ── TOAST ───────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--dark-2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.4rem;
+      display: flex; align-items: center; gap: 0.8rem;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      z-index: 1000; transform: translateY(100px); opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); min-width: 280px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(56,161,105,0.4); }
+    .toast.error   { border-color: rgba(229,62,62,0.4); }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-text { font-size: 0.88rem; font-weight: 500; }
+    .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MEDIA LIBRARY ───────────────────────────────── */
+    .image-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 0.7rem; }
+    .image-library-item { border-radius: 6px; overflow: hidden; aspect-ratio: 4/3; border: 1px solid var(--border); cursor: pointer; position: relative; background: var(--dark-3); }
+    .image-library-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; }
+    .image-library-item:hover img { transform: scale(1.05); }
+    .image-library-item .del-overlay { position: absolute; top: 3px; right: 3px; background: rgba(229,62,62,0.9); color: white; width: 20px; height: 20px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; opacity: 0; transition: opacity 0.2s; cursor: pointer; }
+    .image-library-item:hover .del-overlay { opacity: 1; }
+
+    .info-box { background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.25); border-radius: 8px; padding: 0.9rem 1rem; font-size: 0.82rem; color: var(--gold); line-height: 1.6; margin-bottom: 1rem; }
+    .info-box strong { display: block; margin-bottom: 0.2rem; }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 56px; }
+      .sidebar-logo-text, .sidebar-logo-sub, .nav-item span, .nav-section-label { display: none; }
+      .main { margin-left: 56px; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-row.three { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">IMAGE <span>PHOTO</span> STUDIO</div>
+      <div class="sidebar-logo-sub">Admin Dashboard</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Content</div>
+      <button class="nav-item active" data-section="studio">
+        <span class="icon">⚙</span><span>Studio & Booking</span>
+      </button>
+      <button class="nav-item" data-section="gallery">
+        <span class="icon">🖼</span><span>Gallery Images</span>
+      </button>
+      <button class="nav-item" data-section="hero">
+        <span class="icon">🏠</span><span>Hero Section</span>
+      </button>
+      <button class="nav-item" data-section="services">
+        <span class="icon">📷</span><span>Services</span>
+      </button>
+      <button class="nav-item" data-section="testimonials">
+        <span class="icon">⭐</span><span>Google Reviews</span>
+      </button>
+      <button class="nav-item" data-section="contact">
+        <span class="icon">✉</span><span>Contact & Footer</span>
+      </button>
+      <div class="nav-section-label">Media</div>
+      <button class="nav-item" data-section="media">
+        <span class="icon">📁</span><span>Media Files</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" id="logout-btn">⎋ Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Studio & Booking</div>
+      <div class="topbar-actions">
+        <a href="/" target="_blank" class="btn-view">↗ View Website</a>
+        <button class="btn-save" id="save-btn">💾 Save Changes</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── STUDIO & BOOKING ────────────────────────── -->
+      <div class="section-panel active" id="panel-studio">
+        <div class="card">
+          <div class="card-title">Studio Identity & Logo</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Studio Name</label>
+              <input type="text" id="site-name" placeholder="IMAGE PHOTO STUDIO" />
+            </div>
+            <div class="form-group">
+              <label>Tagline</label>
+              <input type="text" id="site-tagline" placeholder="Where Every Frame Tells a Story" />
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:0.8rem;">
+            <label>Custom Studio Logo Image File (Optional)</label>
+            <div class="image-field">
+              <div class="image-preview" id="logo-img-preview">🖼</div>
+              <div class="image-controls">
+                <input type="text" id="site-logo-url" placeholder="Leave blank to use default camera signboard logo" />
+                <label class="upload-btn-label" for="site-logo-upload">📁 Upload Custom Logo Image</label>
+                <input type="file" id="site-logo-upload" accept="image/*" data-target="site-logo-url" data-preview="logo-img-preview" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">WhatsApp Booking Config</div>
+          <div class="info-box">
+            <strong>💡 WhatsApp Setup</strong>
+            Enter number with country code (e.g. India +91 98765 43210 → enter <strong>919876543210</strong>)
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>WhatsApp Number</label>
+              <input type="text" id="wa-number" placeholder="919876543210" />
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Default Message</label>
+              <textarea id="wa-message" rows="3" placeholder="Hi! I'd like to book a session..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GALLERY IMAGES MANAGEMENT (FILE OPTION) ───── -->
+      <div class="section-panel" id="panel-gallery">
+        <div class="card">
+          <div class="card-title">Upload New Gallery Photo</div>
+          <div class="gallery-upload-box">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Select Photo File</label>
+                <label class="upload-btn-label" for="new-gallery-file">📁 Choose Photo File</label>
+                <input type="file" id="new-gallery-file" accept="image/*" />
+                <span id="new-gallery-file-name" style="font-size:0.75rem;color:var(--gold);margin-top:0.3rem;">No file chosen</span>
+              </div>
+              <div class="form-group">
+                <label>Category Filter</label>
+                <select id="new-gallery-cat">
+                  <option value="wedding">💍 Wedding</option>
+                  <option value="prewedding">🌸 Pre-Wedding</option>
+                  <option value="birthday">🎂 Birthday</option>
+                  <option value="portrait">🎭 Portrait</option>
+                  <option value="family">👨‍👩‍👧 Family</option>
+                  <option value="corporate">🏢 Corporate</option>
+                  <option value="maternity">🤰 Maternity</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Photo Title</label>
+                <input type="text" id="new-gallery-title" placeholder="e.g. Sunset Ceremony" />
+              </div>
+              <div class="form-group">
+                <label>Effect / Style Badge</label>
+                <input type="text" id="new-gallery-effect" placeholder="e.g. Warm Tones / Film Grain" />
+              </div>
+            </div>
+            <button type="button" class="btn-save" id="btn-add-gallery-photo" style="margin-top:0.5rem;">
+              ➕ Upload & Add to Gallery
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Current Gallery Photos (<span id="admin-gallery-count">0</span>)</div>
+          <div class="gallery-admin-grid" id="admin-gallery-grid"></div>
+        </div>
+      </div>
+
+      <!-- ── HERO ────────────────────────────────────── -->
+      <div class="section-panel" id="panel-hero">
+        <div class="card">
+          <div class="card-title">Hero Section</div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Main Heading</label>
+              <input type="text" id="hero-heading" />
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Sub Text</label>
+              <textarea id="hero-subheading" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Hero Background Image</label>
+            <div class="image-field">
+              <div class="image-preview" id="hero-img-preview">🖼</div>
+              <div class="image-controls">
+                <input type="text" id="hero-image-url" placeholder="/uploads/hero.jpg" />
+                <label class="upload-btn-label" for="hero-image-upload">📁 Upload New Image</label>
+                <input type="file" id="hero-image-upload" accept="image/*" data-target="hero-image-url" data-preview="hero-img-preview" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SERVICES ────────────────────────────────── -->
+      <div class="section-panel" id="panel-services">
+        <div class="card">
+          <div class="card-title">Photography Services</div>
+          <div id="services-container"></div>
+          <button class="add-btn" id="add-service-btn">+ Add Service</button>
+        </div>
+      </div>
+
+      <!-- ── TESTIMONIALS / REVIEWS ──────────────────── -->
+      <div class="section-panel" id="panel-testimonials">
+        <div class="card">
+          <div class="card-title">Client Reviews</div>
+          <div id="testimonials-container"></div>
+          <button class="add-btn" id="add-testi-btn">+ Add Review</button>
+        </div>
+      </div>
+
+      <!-- ── CONTACT & FOOTER ────────────────────────── -->
+      <div class="section-panel" id="panel-contact">
+        <div class="card">
+          <div class="card-title">Contact Information</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="contact-email" />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="contact-phone" />
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" id="contact-address" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MEDIA FILES ─────────────────────────────── -->
+      <div class="section-panel" id="panel-media">
+        <div class="card">
+          <div class="card-title">Upload General Image File</div>
+          <label class="upload-btn-label" for="library-upload" style="display:inline-block;">📁 Choose File to Upload</label>
+          <input type="file" id="library-upload" accept="image/*" />
+        </div>
+        <div class="card">
+          <div class="card-title">Uploaded Media Files</div>
+          <div class="image-library-grid" id="library-grid"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toast-icon">✓</span>
+    <span class="toast-text" id="toast-text"></span>
+  </div>
+
+  <script>
+    // ── Auth Guard ─────────────────────────────────────
+    const token = localStorage.getItem('admin_token');
+    if (!token) window.location.href = '/admin/login.html';
+
+    const API = (url, opts = {}) => fetch(url, {
+      ...opts,
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers || {}) }
+    });
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-text').textContent = msg;
+      document.getElementById('toast-icon').textContent = type === 'success' ? '✓' : '✕';
+      t.className = 'toast ' + type + ' show';
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    let content = { gallery: [] };
+
+    const SECTION_TITLES = {
+      studio: 'Studio & Booking', gallery: 'Gallery Images', hero: 'Hero Section',
+      services: 'Services', testimonials: 'Client Reviews', contact: 'Contact & Footer', media: 'Media Files'
+    };
+
+    document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.section).classList.add('active');
+        document.getElementById('topbar-title').textContent = SECTION_TITLES[btn.dataset.section];
+        if (btn.dataset.section === 'media') loadLibrary();
+      });
+    });
+
+    // ── GALLERY MANAGER RENDER ──────────────────────────
+    function renderAdminGallery() {
+      const grid = document.getElementById('admin-gallery-grid');
+      const items = content.gallery || [];
+      document.getElementById('admin-gallery-count').textContent = items.length;
+
+      if (!items.length) {
+        grid.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;grid-column:1/-1;">No photos in gallery yet. Upload one above!</p>';
+        return;
+      }
+
+      grid.innerHTML = items.map((p, i) => `
+        <div class="gallery-admin-card">
+          <div class="gallery-admin-thumb">
+            <img src="${p.url}" alt="${p.title||''}" onerror="this.src='https://via.placeholder.com/200x140?text=Image+Error'" />
+          </div>
+          <div class="gallery-admin-details">
+            <span class="g-cat-tag">${(p.cat||'wedding').toUpperCase()}</span>
+            <span class="g-title-text">${p.title || 'Untitled Photo'}</span>
+            <span class="g-effect-text">Effect: ${p.effect || 'Standard'}</span>
+            <button class="del-btn" style="margin-top:0.4rem;" onclick="deleteGalleryPhoto(${i})">✕ Delete Photo</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.deleteGalleryPhoto = i => {
+      content.gallery.splice(i, 1);
+      renderAdminGallery();
+      showToast('Photo removed from gallery', 'success');
+    };
+
+    // File input label update
+    const galleryFileInput = document.getElementById('new-gallery-file');
+    const galleryFileName  = document.getElementById('new-gallery-file-name');
+    galleryFileInput.addEventListener('change', () => {
+      galleryFileName.textContent = galleryFileInput.files[0] ? galleryFileInput.files[0].name : 'No file chosen';
+    });
+
+    // Add Photo to Gallery with File Upload
+    document.getElementById('btn-add-gallery-photo').addEventListener('click', async () => {
+      const file = galleryFileInput.files[0];
+      if (!file) { showToast('Please select an image file first!', 'error'); return; }
+
+      const cat    = document.getElementById('new-gallery-cat').value;
+      const title  = document.getElementById('new-gallery-title').value.trim() || 'Studio Photo';
+      const effect = document.getElementById('new-gallery-effect').value.trim() || 'Warm Tones';
+
+      const btn = document.getElementById('btn-add-gallery-photo');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Uploading File...';
+
+      try {
+        const uploadedUrl = await uploadImage(file);
+        if (uploadedUrl) {
+          if (!content.gallery) content.gallery = [];
+          content.gallery.unshift({
+            id: Date.now(),
+            cat: cat,
+            title: title,
+            effect: effect,
+            url: uploadedUrl
+          });
+
+          // Reset fields
+          galleryFileInput.value = '';
+          galleryFileName.textContent = 'No file chosen';
+          document.getElementById('new-gallery-title').value = '';
+          document.getElementById('new-gallery-effect').value = '';
+
+          renderAdminGallery();
+          showToast('New photo uploaded & added to gallery! Remember to click Save Changes.', 'success');
+        }
+      } catch {
+        showToast('Upload error', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '➕ Upload & Add to Gallery';
+      }
+    });
+
+    // ── SERVICES RENDER ────────────────────────────────
+    function renderServices(items) {
+      const el = document.getElementById('services-container');
+      el.innerHTML = (items || []).map((s, i) => `
+        <div class="service-item">
+          <div class="service-item-header">
+            <span class="service-item-label">Service ${i+1}</span>
+            <button class="del-btn" onclick="deleteService(${i})">✕ Remove</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Icon (emoji)</label>
+              <input type="text" data-si="${i}" data-field="icon" value="${s.icon||''}" />
+            </div>
+            <div class="form-group">
+              <label>Service Title</label>
+              <input type="text" data-si="${i}" data-field="title" value="${s.title||''}" />
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Description</label>
+              <textarea data-si="${i}" data-field="description" rows="2">${s.description||''}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.deleteService = i => {
+      content.services.items.splice(i, 1);
+      renderServices(content.services.items);
+    };
+
+    document.getElementById('add-service-btn').addEventListener('click', () => {
+      if (!content.services) content.services = { items: [] };
+      content.services.items.push({ icon: '📷', title: 'New Service', description: '' });
+      renderServices(content.services.items);
+    });
+
+    // ── REVIEWS RENDER ─────────────────────────────────
+    function renderTestimonials(items) {
+      const el = document.getElementById('testimonials-container');
+      el.innerHTML = (items || []).map((t, i) => `
+        <div class="service-item">
+          <div class="service-item-header">
+            <span class="service-item-label">Review ${i+1} — ${t.name}</span>
+            <button class="del-btn" onclick="deleteTesti(${i})">✕ Remove</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Reviewer Name</label>
+              <input type="text" data-ti="${i}" data-field="name" value="${t.name||''}" />
+            </div>
+            <div class="form-group">
+              <label>Badge / Description</label>
+              <input type="text" data-ti="${i}" data-field="badge" value="${t.badge||''}" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Rating Stars</label>
+              <select data-ti="${i}" data-field="rating">
+                ${[5,4,3,2,1].map(n => `<option value="${n}" ${(t.rating||5)==n?'selected':''}>${'★'.repeat(n)} (${n} stars)</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="text" data-ti="${i}" data-field="date" value="${t.date||''}" />
+            </div>
+          </div>
+          <div class="form-row full">
+            <div class="form-group">
+              <label>Review Text</label>
+              <textarea data-ti="${i}" data-field="text" rows="2">${t.text||''}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.deleteTesti = i => {
+      content.testimonials.splice(i, 1);
+      renderTestimonials(content.testimonials);
+    };
+
+    document.getElementById('add-testi-btn').addEventListener('click', () => {
+      if (!content.testimonials) content.testimonials = [];
+      content.testimonials.push({ name: '', badge: '', rating: 5, text: '', date: '' });
+      renderTestimonials(content.testimonials);
+    });
+
+    function populateForms(c) {
+      document.getElementById('site-name').value     = c.site?.name      || '';
+      document.getElementById('site-tagline').value  = c.site?.tagline   || '';
+      document.getElementById('site-logo-url').value = c.site?.logoImage || '';
+      updateImagePreview('logo-img-preview', c.site?.logoImage || '');
+
+      document.getElementById('wa-number').value    = c.whatsapp?.number  || '';
+      document.getElementById('wa-message').value   = c.whatsapp?.message || '';
+
+      // Gallery
+      renderAdminGallery();
+
+      // Hero
+      document.getElementById('hero-heading').value    = c.hero?.heading    || '';
+      document.getElementById('hero-subheading').value = c.hero?.subheading || '';
+      document.getElementById('hero-image-url').value  = c.hero?.image      || '';
+      updateImagePreview('hero-img-preview', c.hero?.image || c.hero?.imageFallback);
+
+      // Services & Testimonials
+      renderServices(c.services?.items || []);
+      renderTestimonials(c.testimonials || []);
+
+      // Contact
+      document.getElementById('contact-email').value   = c.contact?.email   || '';
+      document.getElementById('contact-phone').value   = c.contact?.phone   || '';
+      document.getElementById('contact-address').value = c.contact?.address || '';
+    }
+
+    function updateImagePreview(previewId, url) {
+      const el = document.getElementById(previewId);
+      if (url) el.innerHTML = `<img src="${url}" onerror="this.parentElement.textContent='🖼'" />`;
+      else el.textContent = '🖼';
+    }
+
+    function collectFormValues() {
+      // Collect service values
+      document.querySelectorAll('[data-si]').forEach(el => {
+        const i = parseInt(el.dataset.si);
+        if (!content.services.items[i]) content.services.items[i] = {};
+        content.services.items[i][el.dataset.field] = el.value;
+      });
+      // Collect testimonial values
+      document.querySelectorAll('[data-ti]').forEach(el => {
+        const i = parseInt(el.dataset.ti);
+        if (!content.testimonials[i]) content.testimonials[i] = {};
+        const val = el.dataset.field === 'rating' ? parseInt(el.value) : el.value;
+        content.testimonials[i][el.dataset.field] = val;
+      });
+
+      return {
+        site: {
+          name:      document.getElementById('site-name').value,
+          tagline:   document.getElementById('site-tagline').value,
+          logoImage: document.getElementById('site-logo-url').value
+        },
+        whatsapp: { number: document.getElementById('wa-number').value, message: document.getElementById('wa-message').value },
+        gallery:  content.gallery || [],
+        hero: {
+          heading:      document.getElementById('hero-heading').value,
+          subheading:   document.getElementById('hero-subheading').value,
+          image:        document.getElementById('hero-image-url').value,
+          imageFallback: content.hero?.imageFallback || ''
+        },
+        services:     { heading: content.services?.heading || '', items: content.services?.items || [] },
+        testimonials: content.testimonials || [],
+        contact: {
+          email:   document.getElementById('contact-email').value,
+          phone:   document.getElementById('contact-phone').value,
+          address: document.getElementById('contact-address').value
+        }
+      };
+    }
+
+    // Save
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('save-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Saving...';
+      const updated = collectFormValues();
+      content = updated;
+      try {
+        const res = await API('/api/content', { method: 'PUT', body: JSON.stringify(updated) });
+        if (res.ok) showToast('Saved! Changes are live ✓', 'success');
+        else showToast('Save error', 'error');
+      } catch { showToast('Server error', 'error'); }
+      finally { btn.disabled = false; btn.innerHTML = '💾 Save Changes'; }
+    });
+
+    // Upload Helper
+    async function uploadImage(file, targetId, previewId) {
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+      const data = await res.json();
+      if (res.ok) {
+        if (targetId)  document.getElementById(targetId).value = data.url;
+        if (previewId) updateImagePreview(previewId, data.url);
+        return data.url;
+      } else { showToast('Upload failed: ' + data.error, 'error'); }
+    }
+
+    document.querySelectorAll('input[type="file"][data-target]').forEach(input => {
+      input.addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (file) await uploadImage(file, input.dataset.target, input.dataset.preview);
+      });
+    });
+
+    document.getElementById('library-upload').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (file) { await uploadImage(file); loadLibrary(); showToast('Uploaded to library!', 'success'); }
+    });
+
+    async function loadLibrary() {
+      const grid = document.getElementById('library-grid');
+      grid.innerHTML = '<p style="color:var(--muted);font-size:0.82rem;">Loading...</p>';
+      try {
+        const res = await API('/api/uploads');
+        const files = await res.json();
+        if (!files.length) { grid.innerHTML = '<p style="color:var(--muted);font-size:0.82rem;">No images yet.</p>'; return; }
+        grid.innerHTML = files.map(f => `
+          <div class="image-library-item" title="Click to copy URL">
+            <img src="${f.url}" alt="${f.filename}" />
+            <div class="del-overlay" data-filename="${f.filename}">✕</div>
+          </div>
+        `).join('');
+        grid.querySelectorAll('.image-library-item img').forEach(img => {
+          img.addEventListener('click', () => { navigator.clipboard.writeText(img.src); showToast('URL copied!', 'success'); });
+        });
+        grid.querySelectorAll('.del-overlay').forEach(el => {
+          el.addEventListener('click', async e => {
+            e.stopPropagation();
+            if (!confirm('Delete this image file?')) return;
+            await API('/api/uploads/' + el.dataset.filename, { method: 'DELETE' });
+            loadLibrary(); showToast('Deleted', 'success');
+          });
+        });
+      } catch { grid.innerHTML = '<p style="color:var(--danger);">Failed to load.</p>'; }
+    }
+
+    document.getElementById('hero-image-url').addEventListener('input', e => updateImagePreview('hero-img-preview', e.target.value));
+    document.getElementById('site-logo-url').addEventListener('input', e => updateImagePreview('logo-img-preview', e.target.value));
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login.html';
+    });
+
+    async function init() {
+      try {
+        const verify = await API('/api/auth/verify', { method: 'POST' });
+        if (!verify.ok) { localStorage.removeItem('admin_token'); window.location.href = '/admin/login.html'; return; }
+        const res = await API('/api/content');
+        content = await res.json();
+        if (!content.gallery) content.gallery = [];
+        populateForms(content);
+      } catch { showToast('Failed to load content', 'error'); }
+    }
+
+    init();
+  </script>
+</body>
+</html>

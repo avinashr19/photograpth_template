@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>IMAGE PHOTO STUDIO | Manikonda, Hyderabad</title>
+  <meta name="description" content="IMAGE PHOTO STUDIO - Premier photography studio in Manikonda, Hyderabad specializing in weddings, pre-weddings, portraits, birthdays & custom framing." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & LUXURY GOLD DESIGN SYSTEM ───────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:       #C9A84C;
+      --gold-light: #E8C97A;
+      --orange:     #FF6B35;
+      --blue:       #0088FF;
+      --dark:       #0a0a0a;
+      --dark-2:     #111111;
+      --dark-3:     #1a1a1a;
+      --wa-green:   #25D366;
+      --text:       #f0ede8;
+      --text-muted: #888880;
+      --border:     rgba(201, 168, 76, 0.18);
+      --glass:      rgba(201, 168, 76, 0.08);
+      --radius-sm:  4px;
+      --radius-md:  12px;
+      --radius-lg:  20px;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── CURSOR GLOW ──────────────────────────────────────── */
+    .cursor-glow {
+      position: fixed; pointer-events: none; z-index: 9999;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease;
+    }
+
+    /* ── NAVIGATION ───────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      padding: 1rem 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.4s, backdrop-filter 0.4s, border-color 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    /* SIGNBOARD MATCHING LOGO */
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.75rem; text-decoration: none;
+    }
+    .nav-logo-img { height: 44px; width: auto; object-fit: contain; }
+    
+    .logo-signboard {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(0,0,0,0.6); padding: 0.35rem 0.75rem;
+      border: 1px solid rgba(255,107,53,0.3); border-radius: 6px;
+    }
+    .camera-sign-svg { width: 34px; height: 26px; flex-shrink: 0; }
+    .sign-text-col { display: flex; flex-direction: column; line-height: 1; }
+    .sign-title-main {
+      font-size: 1.15rem; font-weight: 900; color: #FFFFFF; letter-spacing: 0.08em;
+      font-family: 'Outfit', sans-serif;
+    }
+    .sign-title-sub {
+      font-size: 0.62rem; font-weight: 800; color: #FF6B35; letter-spacing: 0.12em;
+      margin-top: 2px; text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex; gap: 2rem; list-style: none; align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none;
+      font-size: 0.85rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 2px; background: var(--gold);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+
+    .btn-wa-nav {
+      background: var(--wa-green); color: white;
+      padding: 0.55rem 1.4rem; border-radius: 100px;
+      font-size: 0.82rem; font-weight: 600; letter-spacing: 0.06em;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(37,211,102,0.25);
+    }
+    .btn-wa-nav:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,211,102,0.4); }
+
+    /* Mobile Hamburger Menu */
+    .mobile-hamburger {
+      display: none; flex-direction: column; gap: 5px; cursor: pointer; z-index: 1001;
+    }
+    .mobile-hamburger span {
+      width: 26px; height: 2px; background: var(--gold); border-radius: 2px; transition: all 0.3s;
+    }
+    .mobile-hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .mobile-hamburger.active span:nth-child(2) { opacity: 0; }
+    .mobile-hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu-drawer {
+      position: fixed; top: 0; right: -100%; width: 80%; max-width: 320px; height: 100vh;
+      background: var(--dark-2); z-index: 999; padding: 6rem 2rem 2rem;
+      display: flex; flex-direction: column; justify-content: space-between;
+      border-left: 1px solid var(--border); transition: right 0.4s ease;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+    }
+    .mobile-menu-drawer.open { right: 0; }
+    .mobile-nav-links { list-style: none; display: flex; flex-direction: column; gap: 1.5rem; }
+    .mobile-nav-links a { font-size: 1.1rem; font-weight: 600; color: var(--text); }
+    .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 998; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .mobile-overlay.active { opacity: 1; pointer-events: all; }
+
+    /* ── HERO SECTION WITH KEN BURNS ─────────────────────── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center; overflow: hidden;
+      padding: 8rem 5% 4rem;
+    }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; }
+    .hero-bg img {
+      width: 100%; height: 100%; object-fit: cover;
+      transform: scale(1.05);
+      animation: kenBurns 20s ease-in-out infinite alternate;
+    }
+    @keyframes kenBurns {
+      from { transform: scale(1.05) translate(0, 0); }
+      to   { transform: scale(1.12) translate(-1%, -1%); }
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(10,10,10,0.92) 0%,
+        rgba(10,10,10,0.7) 50%,
+        rgba(10,10,10,0.5) 100%
+      );
+      z-index: 1;
+    }
+    
+    /* HERO CONTENT FLOW - NO ABSOLUTE OVERLAPPING STATS */
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 820px;
+      display: flex; flex-direction: column; align-items: flex-start;
+    }
+    .hero-eyebrow { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem; }
+    .hero-eyebrow-line { width: 40px; height: 1px; background: var(--gold); }
+    .hero-eyebrow-text {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold);
+    }
+    h1.hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 6.5vw, 5rem);
+      font-weight: 700; line-height: 1.08;
+      margin-bottom: 1.2rem;
+    }
+    h1.hero-title em { font-style: italic; color: var(--gold-light); }
+    .hero-sub {
+      font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+      color: rgba(240,237,232,0.85); line-height: 1.8;
+      max-width: 580px; margin-bottom: 2rem;
+    }
+    .hero-actions {
+      display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;
+      margin-bottom: 2.5rem; z-index: 3;
+    }
+    
+    .btn-primary-wa {
+      background: var(--wa-green); color: white;
+      padding: 0.9rem 2.2rem; font-weight: 700;
+      font-size: 0.88rem; letter-spacing: 0.05em; text-transform: uppercase;
+      border-radius: 100px; transition: all 0.3s;
+      box-shadow: 0 8px 32px rgba(37,211,102,0.35);
+      display: inline-flex; align-items: center; gap: 0.6rem;
+    }
+    .btn-primary-wa:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 12px 40px rgba(37,211,102,0.5);
+      transform: translateY(-2px);
+    }
+    .btn-gold-outline {
+      border: 1px solid var(--gold); color: var(--gold);
+      padding: 0.9rem 2.2rem; font-weight: 600;
+      font-size: 0.88rem; letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: 100px; transition: all 0.3s;
+    }
+    .btn-gold-outline:hover { background: var(--gold); color: var(--dark); }
+
+    /* STATS FLOWS IN NORMAL CONTAINER BLOCK (FIXED OVERLAP BUG) */
+    .hero-stats {
+      display: flex; gap: 3rem; flex-wrap: wrap; align-items: center;
+      padding-top: 1.5rem; border-top: 1px solid rgba(201,168,76,0.2); width: 100%;
+    }
+    .hero-stat-item { display: flex; flex-direction: column; }
+    .hero-stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem; font-weight: 700; color: var(--gold);
+      line-height: 1; margin-bottom: 0.2rem;
+    }
+    .hero-stat-label {
+      font-size: 0.72rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+
+    /* ── SECTION COMMON ───────────────────────────────────── */
+    section { padding: 6.5rem 5%; }
+    .section-tag { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
+    .section-tag-line { width: 30px; height: 1px; background: var(--gold); }
+    .section-tag-text {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold);
+    }
+    .section-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700; line-height: 1.2;
+    }
+
+    /* ── ANIMATIONS ───────────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── STORY / ABOUT ────────────────────────────────────── */
+    #story { background: var(--dark-2); }
+    .story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .story-images {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; position: relative;
+    }
+    .story-img-main {
+      grid-column: 1 / -1; height: 280px; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .story-img-sm { height: 180px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    .story-img-badge {
+      position: absolute; bottom: -1.5rem; left: 50%; transform: translateX(-50%);
+      background: var(--gold); color: var(--dark);
+      padding: 0.9rem 1.4rem; text-align: center; border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(201,168,76,0.35); font-weight: 700;
+    }
+    .story-content p { color: var(--text-muted); line-height: 1.9; margin: 1rem 0; font-size: 0.98rem; }
+
+    /* ── SERVICES ─────────────────────────────────────────── */
+    #services { background: var(--dark); }
+    .services-header { text-align: center; margin-bottom: 4rem; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .service-card {
+      position: relative; overflow: hidden;
+      aspect-ratio: 3/4; border-radius: var(--radius-md); cursor: pointer;
+      border: 1px solid var(--border);
+    }
+    .service-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .service-card:hover img { transform: scale(1.08); }
+    .service-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.3) 60%, transparent 100%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 1.8rem; transition: background 0.3s;
+    }
+    .service-tag { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+    .service-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .service-desc { color: rgba(240,237,232,0.7); font-size: 0.88rem; line-height: 1.6; }
+
+    /* ── GALLERY PREVIEW ──────────────────────────────────── */
+    #gallery-preview { background: var(--dark-2); }
+    .gallery-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem; }
+    .preview-masonry {
+      display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(3, 200px); gap: 10px;
+    }
+    .preview-item { overflow: hidden; border-radius: 6px; position: relative; cursor: pointer; }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .preview-item:hover img { transform: scale(1.06); }
+    .pi-1 { grid-column: 1 / 5; grid-row: 1 / 3; }
+    .pi-2 { grid-column: 5 / 9; grid-row: 1 / 2; }
+    .pi-3 { grid-column: 9 / 13; grid-row: 1 / 3; }
+    .pi-4 { grid-column: 5 / 7; grid-row: 2 / 4; }
+    .pi-5 { grid-column: 7 / 9; grid-row: 2 / 4; }
+    .pi-6 { grid-column: 1 / 5; grid-row: 3 / 4; }
+    .pi-7 { grid-column: 9 / 13; grid-row: 3 / 4; }
+
+    /* ── GOOGLE CLIENT REVIEWS ────────────────────────────── */
+    #testimonials { background: var(--dark); }
+    .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 3.5rem; }
+    .testi-card {
+      background: var(--dark-3); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 1.8rem;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .testi-card:hover { transform: translateY(-4px); border-color: rgba(201,168,76,0.4); }
+    .testi-user { display: flex; align-items: center; gap: 0.9rem; }
+    .testi-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--glass); border: 1px solid var(--border);
+      color: var(--gold); font-weight: 700; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .testi-name { font-weight: 600; font-size: 0.95rem; }
+    .testi-badge { font-size: 0.72rem; color: var(--text-muted); }
+    .testi-stars { color: #FFB800; font-size: 0.85rem; letter-spacing: 0.05em; }
+    .testi-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1rem; line-height: 1.7; color: var(--text); }
+    .google-tag { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .google-dot { width: 12px; height: 12px; border-radius: 50%; background: conic-gradient(#4285f4 0% 25%, #ea4335 25% 50%, #fbbc05 50% 75%, #34a853 75% 100%); }
+
+    /* ── WHATSAPP CTA BANNER ──────────────────────────────── */
+    #cta-banner {
+      position: relative; padding: 7.5rem 5%; text-align: center; overflow: hidden;
+      background: var(--dark-2); border-y: 1px solid var(--border);
+    }
+    .cta-content { position: relative; z-index: 1; max-width: 650px; margin: 0 auto; }
+    .cta-content h2 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 700; margin-bottom: 1rem; }
+    .cta-content p { color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1rem; }
+
+    /* ── FOOTER ───────────────────────────────────────────── */
+    footer { background: #050505; border-top: 1px solid var(--border); padding: 4rem 5% 2rem; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+    .footer-logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .footer-desc { color: var(--text-muted); font-size: 0.88rem; line-height: 1.8; }
+    .footer-links { list-style: none; }
+    .footer-links li { margin-bottom: 0.6rem; }
+    .footer-links a { color: var(--text-muted); font-size: 0.88rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.8rem; flex-wrap: wrap; gap: 1rem; }
+
+    /* ── RESPONSIVE MOBILE BREAKPOINTS ────────────────────── */
+    @media (max-width: 900px) {
+      .story-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links, nav .btn-wa-nav { display: none; }
+      .mobile-hamburger { display: flex; }
+      .hero-stats { gap: 1.5rem; }
+    }
+    @media (max-width: 600px) {
+      .preview-masonry { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .pi-1,.pi-2,.pi-3,.pi-4,.pi-5,.pi-6,.pi-7 { grid-column: auto; grid-row: auto; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cursor glow -->
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <!-- NAV -->
+  <nav id="main-nav">
+    <a href="/" class="nav-logo" id="nav-logo-container">
+      <!-- Default SVG Logo Matching Real Studio Signboard -->
+      <div class="logo-signboard">
+        <svg class="camera-sign-svg" viewBox="0 0 40 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 8 C5 5.5, 7 4, 9.5 4 L13 4 L15 1.5 C15.5 0.8, 16.5 0.5, 17.5 0.5 L22.5 0.5 C23.5 0.5, 24.5 0.8, 25 1.5 L27 4 L30.5 4 C33 4, 35 5.5, 35 8 L35 22 C35 24.5, 33 26, 30.5 26 L9.5 26 C7 26, 5 24.5, 5 22 Z" stroke="#FF6B35" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="20" cy="15" r="7.5" stroke="#FF6B35" stroke-width="2.5"/>
+          <circle cx="20" cy="15" r="4.5" fill="#0088FF"/>
+          <circle cx="28" cy="8" r="1.5" fill="#FF6B35"/>
+        </svg>
+        <div class="sign-text-col">
+          <span class="sign-title-main">IMAGE</span>
+          <span class="sign-title-sub">PHOTO STUDIO</span>
+        </div>
+      </div>
+    </a>
+    
+    <ul class="nav-links">
+      <li><a href="/" class="active">Home</a></li>
+      <li><a href="#story">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+    </ul>
+
+    <a href="https://wa.me/918897111768?text=Hi!%20I%27d%20like%20to%20book%20a%20photography%20session%20at%20IMAGE%20PHOTO%20STUDIO." class="btn-wa-nav wa-link" target="_blank">
+      <span>💬</span> WhatsApp Us
+    </a>
+
+    <!-- Mobile Hamburger Toggle -->
+    <div class="mobile-hamburger" id="mobile-hamburger-btn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-overlay" id="mobile-overlay"></div>
+  <div class="mobile-menu-drawer" id="mobile-drawer">
+    <div>
+      <a href="/" class="nav-logo" style="margin-bottom: 2rem;">
+        <div class="logo-signboard">
+          <svg class="camera-sign-svg" viewBox="0 0 40 30" fill="none">
+            <path d="M5 8 C5 5.5, 7 4, 9.5 4 L13 4 L15 1.5 C15.5 0.8, 16.5 0.5, 17.5 0.5 L22.5 0.5 C23.5 0.5, 24.5 0.8, 25 1.5 L27 4 L30.5 4 C33 4, 35 5.5, 35 8 L35 22 C35 24.5, 33 26, 30.5 26 L9.5 26 C7 26, 5 24.5, 5 22 Z" stroke="#FF6B35" stroke-width="2.5"/>
+            <circle cx="20" cy="15" r="7.5" stroke="#FF6B35" stroke-width="2.5"/>
+            <circle cx="20" cy="15" r="4.5" fill="#0088FF"/>
+          </svg>
+          <div class="sign-text-col">
+            <span class="sign-title-main">IMAGE</span>
+            <span class="sign-title-sub">PHOTO STUDIO</span>
+          </div>
+        </div>
+      </a>
+      <ul class="mobile-nav-links">
+        <li><a href="/" class="m-link">Home</a></li>
+        <li><a href="#story" class="m-link">About Us</a></li>
+        <li><a href="#services" class="m-link">Services</a></li>
+        <li><a href="gallery.html" class="m-link">Gallery Portfolio</a></li>
+        <li><a href="#testimonials" class="m-link">Client Reviews</a></li>
+      </ul>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <a href="https://wa.me/918897111768?text=Hi!%20I%27d%20like%20to%20book%20a%20photography%20session%20at%20IMAGE%20PHOTO%20STUDIO." class="btn-primary-wa wa-link" target="_blank" style="justify-content: center;">
+        💬 Chat on WhatsApp
+      </a>
+      <span style="font-size: 0.78rem; color: var(--text-muted); text-align: center;">Manikonda, Hyderabad • 8897111768</span>
+    </div>
+  </div>
+
+  <!-- HERO SECTION WITH KEN BURNS -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <img id="hero-img" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=85" alt="IMAGE PHOTO STUDIO" fetchpriority="high" />
+    </div>
+    <div class="hero-overlay"></div>
+    
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <span class="hero-eyebrow-text">Premier Studio in Manikonda, Hyderabad</span>
+      </div>
+      
+      <h1 class="hero-title" id="hero-title-text">
+        Every Moment<br/>
+        Tells a <em>Story</em>
+      </h1>
+      
+      <p class="hero-sub" id="hero-sub-text">
+        Specializing in weddings, pre-weddings, portraits, birthdays & custom framing. Professional, courteous, and prompt service every single time.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://wa.me/918897111768?text=Hi!%20I%27d%20like%20to%20book%20a%20photography%20session%20at%20IMAGE%20PHOTO%20STUDIO." class="btn-primary-wa wa-link" target="_blank">
+          <span>📲</span> Book via WhatsApp
+        </a>
+        <a href="gallery.html" class="btn-gold-outline">Explore Gallery</a>
+      </div>
+
+      <!-- HERO STATS FLOWS NATURALLY IN CONTENT (NO OVERLAPPING BUG) -->
+      <div class="hero-stats" id="hero-stats-render">
+        <div class="hero-stat-item"><span class="hero-stat-value">1200+</span><span class="hero-stat-label">Sessions Shot</span></div>
+        <div class="hero-stat-item"><span class="hero-stat-value">9+ Yrs</span><span class="hero-stat-label">Experience</span></div>
+        <div class="hero-stat-item"><span class="hero-stat-value">★ 4.9</span><span class="hero-stat-label">Google Rating</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT / STORY SECTION -->
+  <section id="story">
+    <div class="story-grid">
+      <div class="story-images reveal">
+        <div class="story-img-main">
+          <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=900&q=80" alt="Studio framing" />
+        </div>
+        <div class="story-img-sm">
+          <img src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=500&q=80" alt="Pre wedding" />
+        </div>
+        <div class="story-img-sm">
+          <img src="https://images.unsplash.com/photo-1583939411023-14783179e581?w=500&q=80" alt="Portraits" />
+        </div>
+        <div class="story-img-badge">
+          ★ 4.9 Rating on Google
+        </div>
+      </div>
+
+      <div class="story-content reveal">
+        <div class="section-tag">
+          <div class="section-tag-line"></div>
+          <span class="section-tag-text">About Image Photo Studio</span>
+        </div>
+        <h2 class="section-heading">Photography Is the Art of Frozen Time</h2>
+        <p>
+          Located in Manikonda, Hyderabad, <strong>IMAGE PHOTO STUDIO</strong> led by Mr. Raj Kumar Garu is renowned for prompt delivery, high quality photo editing, and excellent customer service.
+        </p>
+        <p>
+          From grand wedding celebrations to pre-weddings, birthday shoots, family portraits, and custom photo framing — we bring technical mastery and genuine dedication to every project.
+        </p>
+        <br/>
+        <a href="https://wa.me/918897111768?text=Hi!%20I%27d%20like%20to%20book%20a%20photography%20session%20at%20IMAGE%20PHOTO%20STUDIO." class="btn-primary-wa wa-link" target="_blank">📲 Chat with Us on WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES SECTION -->
+  <section id="services">
+    <div class="services-header reveal">
+      <div class="section-tag" style="justify-content:center;">
+        <div class="section-tag-line"></div>
+        <span class="section-tag-text">What We Offer</span>
+        <div class="section-tag-line"></div>
+      </div>
+      <h2 class="section-heading" style="text-align:center;">Our Photography <em style="color:var(--gold-light)">Specializations</em></h2>
+    </div>
+
+    <div class="services-grid" id="services-render-list">
+      <div class="service-card reveal">
+        <img src="https://images.unsplash.com/photo-1583939411023-14783179e581?w=700&q=80" alt="Wedding" />
+        <div class="service-overlay">
+          <div class="service-tag">01 — Ceremony</div>
+          <div class="service-name">Wedding Photography</div>
+          <div class="service-desc">Timeless, editorial wedding coverage that preserves every precious moment.</div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <img src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=700&q=80" alt="Pre Wedding" />
+        <div class="service-overlay">
+          <div class="service-tag">02 — Romance</div>
+          <div class="service-name">Pre-Wedding Shoots</div>
+          <div class="service-desc">Romantic, relaxed, and full of genuine connection before your big day.</div>
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=700&q=80" alt="Birthday" />
+        <div class="service-overlay">
+          <div class="service-tag">03 — Celebration</div>
+          <div class="service-name">Birthday & Events</div>
+          <div class="service-desc">Vibrant and joyful event capture for milestone celebrations.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MASONRY GALLERY PREVIEW -->
+  <section id="gallery-preview">
+    <div class="gallery-header reveal">
+      <div>
+        <div class="section-tag">
+          <div class="section-tag-line"></div>
+          <span class="section-tag-text">Portfolio</span>
+        </div>
+        <h2 class="section-heading">Featured <em style="color:var(--gold-light)">Work</em></h2>
+      </div>
+      <a href="gallery.html" class="btn-gold-outline">View Full Gallery →</a>
+    </div>
+
+    <div class="preview-masonry reveal">
+      <div class="preview-item pi-1"><img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&q=80" alt="" /></div>
+      <div class="preview-item pi-2"><img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=600&q=80" alt="" /></div>
+      <div class="preview-item pi-3"><img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&q=80" alt="" /></div>
+      <div class="preview-item pi-4"><img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=400&q=80" alt="" /></div>
+      <div class="preview-item pi-5"><img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80" alt="" /></div>
+      <div class="preview-item pi-6"><img src="https://images.unsplash.com/photo-1490718720478-364a07a997cd?w=600&q=80" alt="" /></div>
+      <div class="preview-item pi-7"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&q=80" alt="" /></div>
+    </div>
+  </section>
+
+  <!-- GOOGLE REVIEWS SECTION (POPULATED STATICALLY FALLBACK) -->
+  <section id="testimonials">
+    <div class="section-tag" style="justify-content:center;">
+      <div class="section-tag-line"></div>
+      <span class="section-tag-text">Google Reviews</span>
+      <div class="section-tag-line"></div>
+    </div>
+    <h2 class="section-heading" style="text-align:center;">Words From Our Clients</h2>
+
+    <div class="testi-grid" id="testi-render-grid">
+      <!-- Static HTML Fallback (Always displays even before JS loads) -->
+      <div class="testi-card reveal">
+        <div>
+          <div class="testi-user">
+            <div class="testi-avatar">FK</div>
+            <div>
+              <div class="testi-name">Fazil Kadri</div>
+              <div class="testi-badge">Local Guide · 9 reviews · 30 photos</div>
+            </div>
+          </div>
+          <div style="margin: 0.6rem 0;"><span class="testi-stars">★★★★★</span></div>
+          <div class="testi-text">"Very professional, courteous and prompt in their service. Highly recommended."</div>
+        </div>
+        <div class="google-tag"><div class="google-dot"></div> Verified Google Review • 3 months ago</div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div>
+          <div class="testi-user">
+            <div class="testi-avatar">AK</div>
+            <div>
+              <div class="testi-name">Anand Kumar</div>
+              <div class="testi-badge">3 reviews</div>
+            </div>
+          </div>
+          <div style="margin: 0.6rem 0;"><span class="testi-stars">★★★★★</span></div>
+          <div class="testi-text">"Excellent editing in time i prefer this studio for manikonda location"</div>
+        </div>
+        <div class="google-tag"><div class="google-dot"></div> Verified Google Review • 3 months ago</div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div>
+          <div class="testi-user">
+            <div class="testi-avatar">SR</div>
+            <div>
+              <div class="testi-name">sudheer reddy</div>
+              <div class="testi-badge">Local Guide · 55 reviews · 14 photos</div>
+            </div>
+          </div>
+          <div style="margin: 0.6rem 0;"><span class="testi-stars">★★★★★</span></div>
+          <div class="testi-text">"I got a frame done here. Overall nice experience and satisfied with the work"</div>
+        </div>
+        <div class="google-tag"><div class="google-dot"></div> Verified Google Review • a year ago</div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div>
+          <div class="testi-user">
+            <div class="testi-avatar">LA</div>
+            <div>
+              <div class="testi-name">Lakshminarayana Arekatla</div>
+              <div class="testi-badge">Local Guide · 8 reviews · 6 photos</div>
+            </div>
+          </div>
+          <div style="margin: 0.6rem 0;"><span class="testi-stars">★★★★★</span></div>
+          <div class="testi-text">"Excellent photo studio and Mr.Raj Kumar Garu n very good person i fully satisfy for my orders and works."</div>
+        </div>
+        <div class="google-tag"><div class="google-dot"></div> Verified Google Review • a year ago</div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div>
+          <div class="testi-user">
+            <div class="testi-avatar">SC</div>
+            <div>
+              <div class="testi-name">Sai Chandrakanth</div>
+              <div class="testi-badge">2 reviews</div>
+            </div>
+          </div>
+          <div style="margin: 0.6rem 0;"><span class="testi-stars">★★★★★</span></div>
+          <div class="testi-text">"Super Photography, Best Quality, Good Service for Customer"</div>
+        </div>
+        <div class="google-tag"><div class="google-dot"></div> Verified Google Review • 10 months ago</div>
+      </div>
+
+      <div class="testi-card reveal">
+        <div>
+          <div class="testi-user">
+            <div class="testi-avatar">MB</div>
+            <div>
+              <div class="testi-name">MindtoMuscle bodybuilding</div>
+              <div class="testi-badge">4 reviews</div>
+            </div>
+          </div>
+          <div style="margin: 0.6rem 0;"><span class="testi-stars">★★★★★</span></div>
+          <div class="testi-text">"Great service 🫡"</div>
+        </div>
+        <div class="google-tag"><div class="google-dot"></div> Verified Google Review • 3 months ago</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHATSAPP CTA BANNER -->
+  <section id="cta-banner">
+    <div class="cta-content reveal">
+      <div class="section-tag" style="justify-content:center;margin-bottom:1rem;">
+        <div class="section-tag-line"></div>
+        <span class="section-tag-text">Get In Touch</span>
+        <div class="section-tag-line"></div>
+      </div>
+      <h2>Ready to Book Your Session?</h2>
+      <p>Contact Mr. Raj Kumar Garu directly on WhatsApp for quotes, package details, and date availability.</p>
+      <a href="https://wa.me/918897111768?text=Hi!%20I%27d%20like%20to%20book%20a%20photography%20session%20at%20IMAGE%20PHOTO%20STUDIO." class="btn-primary-wa wa-link" target="_blank">💬 Chat on WhatsApp Now →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo" id="footer-logo-container">
+          <div class="logo-signboard">
+            <svg class="camera-sign-svg" viewBox="0 0 40 30" fill="none">
+              <path d="M5 8 C5 5.5, 7 4, 9.5 4 L13 4 L15 1.5 C15.5 0.8, 16.5 0.5, 17.5 0.5 L22.5 0.5 C23.5 0.5, 24.5 0.8, 25 1.5 L27 4 L30.5 4 C33 4, 35 5.5, 35 8 L35 22 C35 24.5, 33 26, 30.5 26 L9.5 26 C7 26, 5 24.5, 5 22 Z" stroke="#FF6B35" stroke-width="2.5"/>
+              <circle cx="20" cy="15" r="7.5" stroke="#FF6B35" stroke-width="2.5"/>
+              <circle cx="20" cy="15" r="4.5" fill="#0088FF"/>
+            </svg>
+            <div class="sign-text-col">
+              <span class="sign-title-main">IMAGE</span>
+              <span class="sign-title-sub">PHOTO STUDIO</span>
+            </div>
+          </div>
+        </div>
+        <p class="footer-desc">Professional photo studio in Manikonda, Hyderabad. Specializing in weddings, portraits, pre-weddings, birthdays and custom photo frames.</p>
+      </div>
+      <div>
+        <div style="color:var(--gold);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">Navigation</div>
+        <ul class="footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="#story">About Us</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="#testimonials">Reviews</a></li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:var(--gold);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">Services</div>
+        <ul class="footer-links">
+          <li><a href="gallery.html?filter=wedding">Weddings</a></li>
+          <li><a href="gallery.html?filter=prewedding">Pre-Wedding</a></li>
+          <li><a href="gallery.html?filter=birthday">Birthday Events</a></li>
+          <li><a href="gallery.html?filter=portrait">Portraits & Framing</a></li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:var(--gold);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;font-weight:600;">Contact</div>
+        <ul class="footer-links">
+          <li id="f-addr">📍 Manikonda, Hyderabad</li>
+          <li id="f-phone">📞 +91 88971 11768</li>
+          <li id="f-email">✉️ imagephotostudio@gmail.com</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 IMAGE PHOTO STUDIO. All rights reserved.</span>
+      <span>Manikonda Location • 8897111768</span>
+    </div>
+  </footer>
+
+  <script>
+    // Cursor Glow Effect
+    const glow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', e => {
+      glow.style.left = e.clientX + 'px';
+      glow.style.top  = e.clientY + 'px';
+    });
+
+    // Sticky Header
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    // Mobile Navigation Drawer Toggle
+    const mobileHamburger = document.getElementById('mobile-hamburger-btn');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+
+    function toggleMenu() {
+      mobileHamburger.classList.toggle('active');
+      mobileDrawer.classList.toggle('open');
+      mobileOverlay.classList.toggle('active');
+      document.body.style.overflow = mobileDrawer.classList.contains('open') ? 'hidden' : '';
+    }
+
+    mobileHamburger.addEventListener('click', toggleMenu);
+    mobileOverlay.addEventListener('click', toggleMenu);
+    document.querySelectorAll('.m-link').forEach(link => {
+      link.addEventListener('click', () => { if (mobileDrawer.classList.contains('open')) toggleMenu(); });
+    });
+
+    // Initials Helper
+    function getInitials(name) {
+      if (!name) return 'I';
+      return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    }
+
+    // Build WhatsApp Link
+    function buildWaUrl(number, message) {
+      const cleanNum = (number || '918897111768').replace(/\D/g, '');
+      return `https://wa.me/${cleanNum}?text=${encodeURIComponent(message || "Hi! I'd like to inquire about photo services at Image Photo Studio.")}`;
+    }
+
+    // Render Website Page
+    function renderWebsite(c) {
+      // Check if Custom Logo Image is set in Admin
+      if (c.site?.logoImage) {
+        const logoHTML = `<img src="${c.site.logoImage}" alt="IMAGE PHOTO STUDIO" class="nav-logo-img" />`;
+        document.getElementById('nav-logo-container').innerHTML = logoHTML;
+        document.getElementById('footer-logo-container').innerHTML = logoHTML;
+      }
+
+      // WhatsApp links
+      const waUrl = buildWaUrl(c.whatsapp?.number, c.whatsapp?.message);
+      document.querySelectorAll('.wa-link').forEach(link => link.href = waUrl);
+
+      // Hero
+      if (c.hero?.heading) document.getElementById('hero-title-text').innerHTML = c.hero.heading.replace(/\n/g, '<br/>');
+      if (c.hero?.subheading) document.getElementById('hero-sub-text').textContent = c.hero.subheading;
+      if (c.hero?.image || c.hero?.imageFallback) {
+        document.getElementById('hero-img').src = c.hero.image || c.hero.imageFallback;
+      }
+
+      // Stats
+      if (c.stats?.length) {
+        document.getElementById('hero-stats-render').innerHTML = c.stats.map(s => `
+          <div class="hero-stat-item">
+            <span class="hero-stat-value">${s.value}</span>
+            <span class="hero-stat-label">${s.label}</span>
+          </div>
+        `).join('');
+      }
+
+      // Services
+      if (c.services?.items?.length) {
+        document.getElementById('services-render-list').innerHTML = c.services.items.map((s, i) => `
+          <div class="service-card reveal">
+            <img src="https://images.unsplash.com/photo-1583939411023-14783179e581?w=700&q=80" alt="${s.title}" />
+            <div class="service-overlay">
+              <div class="service-tag">0${i+1} — Service</div>
+              <div class="service-name">${s.title}</div>
+              <div class="service-desc">${s.description}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Testimonials
+      if (c.testimonials?.length) {
+        document.getElementById('testi-render-grid').innerHTML = c.testimonials.map(t => `
+          <div class="testi-card reveal">
+            <div>
+              <div class="testi-user">
+                <div class="testi-avatar">${getInitials(t.name)}</div>
+                <div>
+                  <div class="testi-name">${t.name}</div>
+                  <div class="testi-badge">${t.badge || ''}</div>
+                </div>
+              </div>
+              <div style="margin: 0.6rem 0;"><span class="testi-stars">${'★'.repeat(t.rating || 5)}</span></div>
+              <div class="testi-text">"${t.text}"</div>
+            </div>
+            <div class="google-tag"><div class="google-dot"></div> Verified Google Review • ${t.date || 'Recent'}</div>
+          </div>
+        `).join('');
+      }
+
+      // Contact info
+      if (c.contact?.address) document.getElementById('f-addr').textContent = '📍 ' + c.contact.address;
+      if (c.contact?.phone) document.getElementById('f-phone').textContent = '📞 ' + c.contact.phone;
+      if (c.contact?.email) document.getElementById('f-email').textContent = '✉️ ' + c.contact.email;
+
+      // Observe dynamic reveals
+      document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+    }
+
+    // Scroll Reveal Observer
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revealObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // Fetch API
+    async function init() {
+      try {
+        const res = await fetch('/api/content');
+        if (res.ok) {
+          const content = await res.json();
+          renderWebsite(content);
+        }
+      } catch (err) {
+        console.warn('Using default render fallback:', err);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
