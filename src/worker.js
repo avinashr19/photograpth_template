@@ -1,67 +1,98 @@
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
 
 const app = new Hono()
-app.use('*', cors())
 
 // ══════════════════════════════════════════════════════════════
-// JWT  (Web Crypto — zero npm deps)
+// WEB CRYPTO JWT IMPLEMENTATION (Worker Native)
 // ══════════════════════════════════════════════════════════════
-const b64u = {
-  enc: buf => btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
-  dec: str => Uint8Array.from(
-    atob(str.replace(/-/g, '+').replace(/_/g, '/')),
-    c => c.charCodeAt(0)
+
+function base64urlEncode(arr) {
+  return btoa(String.fromCharCode(...new Uint8Array(arr)))
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+}
+
+function base64urlDecode(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/')
+  while (str.length % 4) str += '='
+  const binary = atob(str)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return bytes
+}
+
+async function getCryptoKey(secret) {
+  const enc = new TextEncoder()
+  return crypto.subtle.importKey(
+    'raw',
+    enc.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign', 'verify']
   )
 }
 
-async function signJWT (payload, secret) {
-  const h = b64u.enc(new TextEncoder().encode(JSON.stringify({ alg: 'HS256', typ: 'JWT' })))
-  const b = b64u.enc(new TextEncoder().encode(JSON.stringify({
-    ...payload,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 28800   // 8 hours
-  })))
-  const key = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+async function signJWT(payload, secret) {
+  const header = { alg: 'HS256', typ: 'JWT' }
+  const encHeader = base64urlEncode(new TextEncoder().encode(JSON.stringify(header)))
+  const encPayload = base64urlEncode(
+    new TextEncoder().encode(
+      JSON.stringify({
+        ...payload,
+        exp: Math.floor(Date.now() / 1000) + 8 * 60 * 60
+      })
+    )
   )
-  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${h}.${b}`))
-  return `${h}.${b}.${b64u.enc(sig)}`
+
+  const toSign = `${encHeader}.${encPayload}`
+  const key = await getCryptoKey(secret)
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(toSign))
+
+  return `${toSign}.${base64urlEncode(sig)}`
 }
 
-async function verifyJWT (token, secret) {
-  const parts = token.split('.')
-  if (parts.length !== 3) throw new Error('Malformed token')
-  const [h, b, sig] = parts
-  const key = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']
-  )
-  const ok = await crypto.subtle.verify(
-    'HMAC', key,
-    b64u.dec(sig),
-    new TextEncoder().encode(`${h}.${b}`)
-  )
-  if (!ok) throw new Error('Invalid signature')
-  const payload = JSON.parse(new TextDecoder().decode(b64u.dec(b)))
-  if (payload.exp < Date.now() / 1000) throw new Error('Token expired')
-  return payload
-}
-
-// ══════════════════════════════════════════════════════════════
-// AUTH MIDDLEWARE
-// ══════════════════════════════════════════════════════════════
-async function requireAuth (c, next) {
-  const auth = c.req.header('Authorization') ?? ''
-  if (!auth.startsWith('Bearer ')) return c.json({ error: 'No token provided' }, 401)
+async function verifyJWT(token, secret) {
   try {
-    c.set('user', await verifyJWT(auth.slice(7), c.env.JWT_SECRET))
-    await next()
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+
+    const [encHeader, encPayload, encSig] = parts
+    const toVerify = `${encHeader}.${encPayload}`
+    const key = await getCryptoKey(secret)
+    const sig = base64urlDecode(encSig)
+
+    const valid = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      sig,
+      new TextEncoder().encode(toVerify)
+    )
+    if (!valid) return null
+
+    const payload = JSON.parse(new TextDecoder().decode(base64urlDecode(encPayload)))
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null
+
+    return payload
   } catch {
-    return c.json({ error: 'Invalid or expired token' }, 403)
+    return null
   }
+}
+
+// ══════════════════════════════════════════════════════════════
+// MIDDLEWARE — AUTH
+// ══════════════════════════════════════════════════════════════
+async function requireAuth(c, next) {
+  const authHeader = c.req.header('Authorization')
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+
+  if (!token) return c.json({ error: 'No token provided' }, 401)
+
+  const payload = await verifyJWT(token, c.env.JWT_SECRET)
+  if (!payload) return c.json({ error: 'Invalid or expired token' }, 403)
+
+  c.set('user', payload)
+  await next()
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -183,7 +214,6 @@ app.post('/api/auth/login', async c => {
   const validPass = password === c.env.ADMIN_PASSWORD
 
   if (!validUser || !validPass) {
-    // Artificial delay — brute-force protection
     await new Promise(r => setTimeout(r, 1000))
     return c.json({ error: 'Invalid credentials' }, 401)
   }
@@ -216,7 +246,7 @@ app.put('/api/content', requireAuth, async c => {
 })
 
 // ══════════════════════════════════════════════════════════════
-// ROUTES — IMAGES  (R2)
+// ROUTES — IMAGES  (R2 or KV Fallback for 100% Free deployment)
 // ══════════════════════════════════════════════════════════════
 
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'])
@@ -232,43 +262,79 @@ app.post('/api/upload', requireAuth, async c => {
   const ext      = file.name.split('.').pop().toLowerCase()
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
-  await c.env.IMAGES_BUCKET.put(filename, file.stream(), {
-    httpMetadata: { contentType: file.type }
-  })
+  if (c.env.IMAGES_BUCKET) {
+    await c.env.IMAGES_BUCKET.put(filename, file.stream(), {
+      httpMetadata: { contentType: file.type }
+    })
+  } else {
+    // Store in KV (100% FREE - No credit card required!)
+    const arrayBuffer = await file.arrayBuffer()
+    await c.env.CONTENT_KV.put(`img:${filename}`, arrayBuffer, {
+      metadata: { type: file.type }
+    })
+  }
 
   return c.json({ url: `/uploads/${filename}`, filename })
 })
 
 // GET /api/uploads  — protected (admin media library)
 app.get('/api/uploads', requireAuth, async c => {
-  const list  = await c.env.IMAGES_BUCKET.list()
-  const files = list.objects.map(o => ({ filename: o.key, url: `/uploads/${o.key}` }))
+  if (c.env.IMAGES_BUCKET) {
+    const list  = await c.env.IMAGES_BUCKET.list()
+    const files = list.objects.map(o => ({ filename: o.key, url: `/uploads/${o.key}` }))
+    return c.json(files)
+  }
+
+  // KV fallback list
+  const list = await c.env.CONTENT_KV.list({ prefix: 'img:' })
+  const files = list.keys.map(k => {
+    const filename = k.name.replace(/^img:/, '')
+    return { filename, url: `/uploads/${filename}` }
+  })
   return c.json(files)
 })
 
 // DELETE /api/uploads/:filename  — protected
 app.delete('/api/uploads/:filename', requireAuth, async c => {
-  await c.env.IMAGES_BUCKET.delete(c.req.param('filename'))
+  const filename = c.req.param('filename')
+  if (c.env.IMAGES_BUCKET) {
+    await c.env.IMAGES_BUCKET.delete(filename)
+  } else {
+    await c.env.CONTENT_KV.delete(`img:${filename}`)
+  }
   return c.json({ success: true })
 })
 
-// ══════════════════════════════════════════════════════════════
-// SERVE IMAGES FROM R2  (public)
-// ══════════════════════════════════════════════════════════════
+// SERVE IMAGES (public)
 app.get('/uploads/:filename', async c => {
-  const obj = await c.env.IMAGES_BUCKET.get(c.req.param('filename'))
-  if (!obj) return c.notFound()
+  const filename = c.req.param('filename')
 
-  const headers = new Headers()
-  obj.writeHttpMetadata(headers)
-  headers.set('etag', obj.httpEtag)
-  headers.set('cache-control', 'public, max-age=31536000, immutable')
+  if (c.env.IMAGES_BUCKET) {
+    const obj = await c.env.IMAGES_BUCKET.get(filename)
+    if (obj) {
+      const headers = new Headers()
+      obj.writeHttpMetadata(headers)
+      headers.set('etag', obj.httpEtag)
+      headers.set('cache-control', 'public, max-age=31536000, immutable')
+      return new Response(obj.body, { headers })
+    }
+  }
 
-  return new Response(obj.body, { headers })
+  // Fallback to KV storage
+  const kvObj = await c.env.CONTENT_KV.getWithMetadata(`img:${filename}`, { type: 'arrayBuffer' })
+  if (!kvObj || !kvObj.value) return c.notFound()
+
+  const contentType = kvObj.metadata?.type || 'image/jpeg'
+  return new Response(kvObj.value, {
+    headers: {
+      'content-type': contentType,
+      'cache-control': 'public, max-age=31536000, immutable'
+    }
+  })
 })
 
 // ══════════════════════════════════════════════════════════════
-// FALLTHROUGH → Static Assets (Pages / Workers Assets)
+// FALLTHROUGH → Static Assets
 // ══════════════════════════════════════════════════════════════
 app.all('*', c => c.env.ASSETS.fetch(c.req.raw))
 
